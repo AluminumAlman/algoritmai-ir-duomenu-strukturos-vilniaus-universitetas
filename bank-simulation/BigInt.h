@@ -1,0 +1,116 @@
+//
+// MIT License
+//
+// Copyright (c) 2020 Daniel Clark
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in all
+// copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+// SOFTWARE.
+//
+
+#ifndef BIG_INT_H
+#define BIG_INT_H
+
+#ifndef NULL
+#define NULL 0
+#endif
+
+typedef struct BigInt {
+    unsigned char* digits; // Array of digits 0-9.  Greater indices hold more significant digits.
+    unsigned int num_digits; // Number of digits actually in the number.
+    unsigned int num_allocated_digits; // digits array has space for this many digits
+    int is_negative; // Nonzero if this BigInt is negative, zero otherwise.
+} BigInt;
+
+//============================================================================
+// Construction and assignment
+//============================================================================
+
+// Returns a pointer to a new BigInt initialized to the specified value.
+// Caller is responsible for freeing the new BigInt with a
+// corresponding call to BigInt_free.
+BigInt* BigInt_construct(int value);
+
+//
+// MODIFIED FROM ORIGINAL
+// Returns a pointer to a new BigInt initialized from a string.
+// Caller is responsible for freeing the new BigInt with a
+// corresponding call to BigInt_free.
+//
+BigInt *BigInt_from_string(const char *str);
+
+// Frees the memory for a BigInt allocated using BigInt_construct.
+void BigInt_free(BigInt* big_int);
+
+///Sets the value of the target BigInt to the value of the source BigInt.
+// Assumes that target and source already point to valid BigInts. 
+void BigInt_assign(BigInt* target, const BigInt* source);
+
+///Sets the value of the target BigInt to the value of the source int.
+void BigInt_assign_int(BigInt* target, const int source);
+
+//============================================================================
+// Basic mathematical operations
+//============================================================================
+
+// Returns -1 if a < b, 0 if a == b, 1 if a > b 
+int BigInt_compare(const BigInt* a, const BigInt* b);
+
+// Adds the value in addend to big_int.  Places the result in big_int.
+void BigInt_add(BigInt* big_int, const BigInt* addend);
+void BigInt_add_int(BigInt* big_int, const int addend);
+
+// Subtracts the value of to_subtract from big_int. 
+// Places the result in big_int.
+void BigInt_subtract(BigInt* big_int, const BigInt* to_subtract);
+void BigInt_subtract_int(BigInt* big_int, const int to_subtract);
+
+// Multiplies the value in big_int by multiplier.  Places the
+// result in big_int.
+void BigInt_multiply(BigInt* big_int, const BigInt* multiplier);
+void BigInt_multiply_int(BigInt* big_int, const int multiplier);
+
+// Returns the value of big_int as an integer.  Requires that the
+// value of big_int fits within the size of an int on the target
+// environment.  Result is undefined if this is not the case.
+int BigInt_to_int(const BigInt* big_int);
+
+// Prints the contents of big_int to stdout.
+void BigInt_print(const BigInt* big_int);
+
+//============================================================================
+// Internal helpers
+//============================================================================
+
+// Ensure that big_int has space allocated for at least digits_needed digits.
+void BigInt_ensure_digits(BigInt* big_int, unsigned int digits_needed);
+
+// Performs an unsigned comparison of the two BigInt parameters; that is, the
+// comparison is of their absolute values.  Returns 1 if |a| > |b|, 0 if |a| == |b|,
+// and -1 if |a| < |b|.
+int BigInt_compare_digits(const BigInt* a, const BigInt* b);
+
+// Performs an unsigned addition of to_add to big_int; adds the digits without regard
+// for the sign of either parameter. 
+void BigInt_add_digits(BigInt* big_int, const BigInt* to_add);
+
+// Performs an unsigned subtraction of to_subtract from big_int; subtracts the digits
+// without regard for the sign of either parameter. 
+void BigInt_subtract_digits(BigInt* big_int, const BigInt* to_subtract);
+
+#endif // BIG_INT_H
+
